@@ -12,4 +12,6 @@ app.get("/test", (req, res) => {
   res.json({ message: "Main API Test OK" });
 });
 
-module.exports = serverless(app);
+// penting!
+module.exports = app;
+module.exports.handler = serverless(app);
