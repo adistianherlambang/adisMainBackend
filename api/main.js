@@ -18,7 +18,7 @@ app.get("/ya", (req, res) => {
   res.json({message: "yayaya"})
 })
 
-app.use("/api/adis", adis); 
+app.use("/adis", adis); 
 
 // LOCAL DEVELOPMENT
 const isDev = process.env.NODE_ENV !== "production";
