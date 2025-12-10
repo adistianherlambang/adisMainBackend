@@ -1,6 +1,6 @@
 {
-  "watch": ["server.js", "routes/", "controllers/"],
+  "watch": ["api/", "routes/", "controllers/"],
   "ext": "js,json",
   "ignore": ["node_modules/"],
-  "exec": "node server.js"
+  "exec": "node api/main.js"
 }

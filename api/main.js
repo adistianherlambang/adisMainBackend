@@ -14,8 +14,10 @@ app.get("/test", (req, res) => {
 });
 
 // LOCAL DEVELOPMENT
-if (process.env.NODE_ENV === "development") {
-  const port = 5000;
+const isDev = process.env.NODE_ENV !== "production"; // local kalau bukan production
+
+if (isDev) {
+  const port = process.env.PORT || 5000;
   app.listen(port, () => {
     console.log(`Server running locally on http://localhost:${port}`);
   });
