@@ -12,7 +12,9 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
+    "cloudinary": "^2.8.0",
     "express": "^5.2.1",
+    "multer": "^2.0.2",
     "serverless-http": "^4.0.0"
   },
   "devDependencies": {
