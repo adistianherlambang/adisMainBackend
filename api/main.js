@@ -1,18 +1,14 @@
 const express = require("express");
-const app = express();
 const serverless = require("serverless-http");
 
+const app = express();
 app.use(express.json());
 
-// contoh endpoint
+// endpoint
 app.get("/", (req, res) => {
-  res.send("Express on Vercel berhasil!");
+  res.json({ message: "Express di Vercel jalan!" });
 });
 
-app.get("/hello", (req, res) => {
-  res.json({ message: "Hello dari Vercel Serverless" });
-});
-
-// export for Vercel
+// export ke vercel
 module.exports = app;
 module.exports.handler = serverless(app);
