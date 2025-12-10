@@ -25,7 +25,7 @@ const cloudinary = require("./config");
 
 router.get("/cloudinary", async (req, res) => {
   const url = cloudinary.url('main-sample')
-  console.log(url)
+  res.send(url)
 })
 
 module.exports = router;

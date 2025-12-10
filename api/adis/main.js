@@ -3,6 +3,6 @@ const router = express.Router();
 
 const cloudinaryServices = require("./service/cloudinary/cloudinary")
 
-router.use(cloudinaryServices)
+router.use("/cloud", cloudinaryServices)
 
 module.exports = router;
