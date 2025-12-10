@@ -4,11 +4,12 @@ const serverless = require("serverless-http");
 const app = express();
 app.use(express.json());
 
-// endpoint
 app.get("/", (req, res) => {
-  res.json({ message: "Express di Vercel jalan!" });
+  res.json({ message: "Main API OK" });
 });
 
-// export ke vercel
-module.exports = app;
-module.exports.handler = serverless(app);
+app.get("/test", (req, res) => {
+  res.json({ message: "Main API Test OK" });
+});
+
+module.exports = serverless(app);
