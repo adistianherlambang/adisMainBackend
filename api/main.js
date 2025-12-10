@@ -11,8 +11,12 @@ app.use(express.json());
 
 // ROUTES
 app.get("/", (req, res) => {
-  res.json({ message: "Main API OK" });
+  res.json({ message: "Main OK" });
 });
+
+app.get("ya", (req, res) => {
+  res.json({message: "yayaya"})
+})
 
 app.use("/api/adis", adis); 
 
