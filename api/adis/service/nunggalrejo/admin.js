@@ -36,7 +36,7 @@ router.post(
         price: Number(price),
         imgUrl: uploadResult.secure_url,
         cloudinaryId: uploadResult.public_id,
-        slug: slugify(`${kategori}/${toko}/${name}`, { lower: true, strict: true })
+        slug: slugify(`/${kategori}/${toko}/${name}`, { lower: true, strict: true })
       });
 
       // fetch the created document to verify it was written
@@ -60,8 +60,6 @@ router.post(
     }
   }
 );
-
-
 
 // get product by id (debug helper)
 router.get("/product/:id", async (req, res) => {
@@ -101,17 +99,30 @@ router.delete("/product/:id", async (req, res) => {
   if (!id) return res.status(400).json({ error: "ID dokumen wajib diisi" });
 
   try {
-    const docRef = getDb().collection("products").doc(id);
-    const doc = await docRef.get();
+    const docRef = getDb().collection("product").doc(id);
+    const docSnap = await docRef.get();
 
-    if (!doc.exists) {
+    if (!docSnap.exists) {
       return res.status(404).json({ error: "Dokumen tidak ditemukan" });
     }
 
+    const docData = docSnap.data();
+
+    // Hapus image di Cloudinary jika ada public_id
+    if (docData.cloudinaryId) {
+      await cloudinary.uploader.destroy(docData.cloudinaryId);
+      console.log(`Image Cloudinary ${docData.cloudinaryId} berhasil dihapus`);
+    }
+
+    // Hapus dokumen Firestore
     await docRef.delete();
-    res.json({ message: "Dokumen berhasil dihapus", id });
+
+    res.json({
+      message: "Dokumen dan image berhasil dihapus",
+      id,
+    });
   } catch (err) {
-    console.error("Gagal menghapus dokumen:", err);
+    console.error("Gagal menghapus dokumen atau image:", err);
     res.status(500).json({ error: "Terjadi kesalahan server" });
   }
 });
