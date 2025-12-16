@@ -42,9 +42,7 @@ router.post(
   }
 );
 
-/**
- * GET /products
- */
+//buat get product
 router.get("/product", async (req, res) => {
   try {
     const snap = await getDb()
@@ -63,8 +61,31 @@ router.get("/product", async (req, res) => {
   }
 });
 
+router.delete("/product:id", async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) return res.status(400).json({ error: "ID dokumen wajib diisi" });
+
+  try {
+    const docRef = db.collection("products").doc(id);
+    const doc = await docRef.get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "Dokumen tidak ditemukan" });
+    }
+
+    await docRef.delete();
+    res.json({ message: "Dokumen berhasil dihapus", id });
+  } catch (err) {
+    console.error("Gagal menghapus dokumen:", err);
+    res.status(500).json({ error: "Terjadi kesalahan server" });
+  }
+})
+
 router.get("/", (req,res) => {
   res.json("ya")
 })
+
+router.
 
 module.exports = router;
