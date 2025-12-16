@@ -26,10 +26,10 @@ router.post(
       // simpan ke firestore
       const doc = await getDb().collection("product").add({
         name,
+        toko,
+        description,
         price: Number(price),
-        imageUrl: uploadResult.secure_url,
-        publicId: uploadResult.public_id,
-        createdAt: new Date()
+        imgUrl: uploadResult.secure_url,
       });
 
       // fetch the created document to verify it was written
