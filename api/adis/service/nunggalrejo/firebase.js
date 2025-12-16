@@ -3,12 +3,30 @@ const dotenv = require("dotenv")
 
 dotenv.config();
 
+// Validate required env vars for the Firebase service account
+const requiredEnv = [
+  "NUNGGALREJO_FB_TYPE",
+  "NUNGGALREJO_FB_PROJECT_ID",
+  "NUNGGALREJO_FB_PRIVATE_KEY_ID",
+  "NUNGGALREJO_FB_PRIVATE_KEY",
+  "NUNGGALREJO_FB_EMAIL"
+];
+
+const missing = requiredEnv.filter((k) => !process.env[k]);
+if (missing.length) {
+  throw new Error(
+    `Missing required environment variables for Nunggalrejo Firebase: ${missing.join(", ")}`
+  );
+}
+
+const privateKey = process.env.NUNGGALREJO_FB_PRIVATE_KEY.replace(/\\n/g, "\n");
+
 admin.initializeApp({
   credential: admin.credential.cert({
     type: process.env.NUNGGALREJO_FB_TYPE,
     project_id: process.env.NUNGGALREJO_FB_PROJECT_ID,
     private_key_id: process.env.NUNGGALREJO_FB_PRIVATE_KEY_ID,
-    private_key: process.env.NUNGGALREJO_FB_KEY_ID.replace(/\\n/g, "\n"),
+    private_key: privateKey,
     client_email: process.env.NUNGGALREJO_FB_EMAIL,
     client_id: process.env.NUNGGALREJO_FB_CLIENT_ID,
     auth_uri: process.env.NUNGGALREJO_FB_AUTH_URI,
