@@ -10,7 +10,7 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, price, toko, nomor, description, category} = req.body;
+      const { name, price, toko, nomor, description, kategori} = req.body;
       const file = req.file;
 
       if (!name || !price || !file) {
@@ -29,7 +29,7 @@ router.post(
         toko,
         description,
         nomor,
-        category,
+        kategori,
         price: Number(price),
         imgUrl: uploadResult.secure_url,
       });
