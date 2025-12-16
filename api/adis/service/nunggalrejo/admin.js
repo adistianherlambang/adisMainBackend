@@ -24,7 +24,7 @@ router.post(
       );
 
       // simpan ke firestore
-      const doc = await db.collection("products").add({
+      const doc = await getDb().collection("products").add({
         name,
         price: Number(price),
         imageUrl: uploadResult.secure_url,
@@ -61,13 +61,13 @@ router.get("/product", async (req, res) => {
   }
 });
 
-router.delete("/product:id", async (req, res) => {
+router.delete("/product/:id", async (req, res) => {
   const { id } = req.params;
 
   if (!id) return res.status(400).json({ error: "ID dokumen wajib diisi" });
 
   try {
-    const docRef = db.collection("products").doc(id);
+    const docRef = getDb().collection("products").doc(id);
     const doc = await docRef.get();
 
     if (!doc.exists) {
@@ -80,12 +80,12 @@ router.delete("/product:id", async (req, res) => {
     console.error("Gagal menghapus dokumen:", err);
     res.status(500).json({ error: "Terjadi kesalahan server" });
   }
-})
+});
 
 router.get("/", (req,res) => {
   res.json("ya")
 })
 
-router.
+// end of routes
 
 module.exports = router;
