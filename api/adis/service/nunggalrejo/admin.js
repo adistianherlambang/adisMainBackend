@@ -32,15 +32,40 @@ router.post(
         createdAt: new Date()
       });
 
+      // fetch the created document to verify it was written
+      const createdSnap = await getDb().collection("products").doc(doc.id).get();
+      const createdData = createdSnap.exists ? createdSnap.data() : null;
+
+      // Log useful debug info (project id, doc id, cloudinary public id)
+      console.log("Product created", {
+        firebaseProject: process.env.NUNGGALREJO_FB_PROJECT_ID,
+        id: doc.id,
+        cloudinaryId: uploadResult.public_id,
+      });
+
       res.json({
         id: doc.id,
-        imageUrl: uploadResult.secure_url
+        imageUrl: uploadResult.secure_url,
+        product: createdData,
       });
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
   }
 );
+
+// get product by id (debug helper)
+router.get("/product/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const docRef = getDb().collection("products").doc(id);
+    const doc = await docRef.get();
+    if (!doc.exists) return res.status(404).json({ error: "Not found" });
+    res.json({ id: doc.id, ...doc.data() });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 //buat get product
 router.get("/product", async (req, res) => {
