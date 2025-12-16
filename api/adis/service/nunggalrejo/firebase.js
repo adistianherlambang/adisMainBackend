@@ -32,7 +32,7 @@ function init() {
         type: process.env.NUNGGALREJO_FB_TYPE,
         project_id: process.env.NUNGGALREJO_FB_PROJECT_ID,
         private_key_id: process.env.NUNGGALREJO_FB_PRIVATE_KEY_ID,
-        private_key: process.env.NUNGGALREJO_FB_PRIVATE_KEY.replace(/\\n/g, "\n"),
+        private_key: privateKey,
         client_email: process.env.NUNGGALREJO_FB_EMAIL,
         client_id: process.env.NUNGGALREJO_FB_CLIENT_ID,
         auth_uri: process.env.NUNGGALREJO_FB_AUTH_URI,
