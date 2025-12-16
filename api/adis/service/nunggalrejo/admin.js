@@ -1,5 +1,5 @@
 const express = require("express")
-const db = require("./firebase")
+const { getDb } = require("./firebase")
 const upload = require("../cloudinary/multer")
 const cloudinary = require("../cloudinary/config")
 
@@ -46,17 +46,21 @@ router.post(
  * GET /products
  */
 router.get("/product", async (req, res) => {
-  const snap = await db
-    .collection("products")
-    .orderBy("createdAt", "desc")
-    .get();
+  try {
+    const snap = await getDb()
+      .collection("products")
+      .orderBy("createdAt", "desc")
+      .get();
 
-  const data = snap.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
+    const data = snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    }));
 
-  res.json(data);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.get("/", (req,res) => {
