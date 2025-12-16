@@ -1,7 +1,4 @@
 const admin = require("firebase-admin")
-const dotenv = require("dotenv")
-
-dotenv.config();
 
 // Validate required env vars for the Firebase service account
 const requiredEnv = [
