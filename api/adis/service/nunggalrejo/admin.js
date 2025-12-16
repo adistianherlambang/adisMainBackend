@@ -10,7 +10,7 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, price, toko, nomor, description} = req.body;
+      const { name, price, toko, nomor, description, category} = req.body;
       const file = req.file;
 
       if (!name || !price || !file) {
@@ -29,6 +29,7 @@ router.post(
         toko,
         description,
         nomor,
+        category,
         price: Number(price),
         imgUrl: uploadResult.secure_url,
       });
@@ -54,6 +55,8 @@ router.post(
     }
   }
 );
+
+
 
 // get product by id (debug helper)
 router.get("/product/:id", async (req, res) => {
