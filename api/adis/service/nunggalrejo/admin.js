@@ -10,7 +10,7 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, price, toko, nomor, description, kategori} = req.body;
+      const { name, price, toko, nomor, description, kategori, minBuy} = req.body;
       const file = req.file;
 
       if (!name || !price || !file) {
@@ -23,6 +23,8 @@ router.post(
         { folder: "products" }
       );
 
+      const slugify = (text) => text?.toLowerCase().replace(/\s+/g, "-") || "";
+
       // simpan ke firestore
       const doc = await getDb().collection("product").add({
         name,
@@ -30,8 +32,11 @@ router.post(
         description,
         nomor,
         kategori,
+        minBuy,
         price: Number(price),
         imgUrl: uploadResult.secure_url,
+        cloudinaryId: uploadResult.public_id,
+        slug: slugify(`${kategori}/${toko}/${name}`, { lower: true, strict: true })
       });
 
       // fetch the created document to verify it was written
