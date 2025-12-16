@@ -25,7 +25,7 @@ function init() {
   try {
     checkEnvVars();
 
-    const privateKey = process.env.NUNGGALREJO_FB_PRIVATE_KEY.replace(/\\n/g, "\n");
+    const privateKey = process.env.NUNGGALREJO_FB_KEY_ID.replace(/\\n/g, "\n");
 
     admin.initializeApp({
       credential: admin.credential.cert({
