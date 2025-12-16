@@ -24,7 +24,7 @@ router.post(
       );
 
       // simpan ke firestore
-      const doc = await getDb().collection("products").add({
+      const doc = await getDb().collection("product").add({
         name,
         price: Number(price),
         imageUrl: uploadResult.secure_url,
@@ -33,7 +33,7 @@ router.post(
       });
 
       // fetch the created document to verify it was written
-      const createdSnap = await getDb().collection("products").doc(doc.id).get();
+      const createdSnap = await getDb().collection("product").doc(doc.id).get();
       const createdData = createdSnap.exists ? createdSnap.data() : null;
 
       // Log useful debug info (project id, doc id, cloudinary public id)
