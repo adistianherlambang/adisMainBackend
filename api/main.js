@@ -1,5 +1,6 @@
 const express = require("express");
 const serverless = require("serverless-http");
+const cors = require("cors")
 
 require("dotenv").config();
 
@@ -8,6 +9,12 @@ const adis = require("./adis/main")
 
 const app = express();
 app.use(express.json());
+
+app.use(cors({
+  origin: "*", // sementara (dev)
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // ROUTES
 app.get("/", (req, res) => {
