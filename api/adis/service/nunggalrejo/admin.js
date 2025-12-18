@@ -10,7 +10,7 @@ router.post(
   upload.single("image"),
   async (req, res) => {
     try {
-      const { name, price, toko, nomor, description, kategori, minBuy} = req.body;
+      const { name, price, toko, nomor, description, kategori, minBuy, userId} = req.body;
       const file = req.file;
 
       if (!name || !price || !file) {
@@ -29,6 +29,7 @@ router.post(
       const doc = await getDb().collection("product").add({
         name,
         toko,
+        userId,
         description,
         nomor,
         kategori,
@@ -127,75 +128,14 @@ router.delete("/product/:id", async (req, res) => {
   }
 });
 
-// backend/routes/user.js
-// router.post("/update", upload.single("image"), async (req, res) => {
-//   try {
-//     const { no, nama, alamat, toko } = req.body;
-//     const file = req.file;
-
-//     console.log("REQ.BODY:", req.body);
-//     console.log("REQ.FILE:", file);
-
-//     if (!toko) {
-//       return res.status(400).json({ message: "Toko wajib diisi" });
-//     }
-
-//     // Upload ke Cloudinary jika ada file
-//     let uploadResult = null;
-//     if (file) {
-//       uploadResult = await cloudinary.uploader.upload(
-//         `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
-//         { folder: "products" }
-//       );
-//     }
-
-//     // Cari dokumen berdasarkan field "toko"
-//     const querySnap = await getDb()
-//       .collection("users")
-//       .where("toko", "==", toko)
-//       .get();
-
-//     if (querySnap.empty) {
-//       return res.status(404).json({ message: "User dengan toko ini tidak ditemukan" });
-//     }
-
-//     // Update semua dokumen yang cocok
-//     const updateData = {};
-//     if (no) updateData.no = no;
-//     if (nama) updateData.nama = nama;
-//     if (alamat) updateData.alamat = alamat;
-//     if (uploadResult) {
-//       updateData.imgUrl = uploadResult.secure_url;
-//       updateData.cloudinaryId = uploadResult.public_id;
-//     }
-
-//     const updatedUsers = [];
-//     for (const doc of querySnap.docs) {
-//       await doc.ref.set(updateData, { merge: true });
-//       updatedUsers.push({ id: doc.id, ...updateData });
-//     }
-
-//     res.json({
-//       message: "User berhasil diperbarui",
-//       users: updatedUsers,
-//     });
-//   } catch (err) {
-//     console.error("UPDATE ERROR:", err);
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-
 router.post("/update", upload.single("image"), async (req, res) => {
   try {
-    const { no, nama, alamat, toko } = req.body;
+    const { no, nama, alamat, toko, userId } = req.body;
     const file = req.file;
 
     if (!toko) {
       return res.status(400).json({ message: "Toko wajib diisi" });
     }
-
-    console.log("REQ.BODY:", req.body);
-    console.log("REQ.FILE:", file);
 
     // Upload image baru jika ada
     let uploadResult = null;
@@ -204,12 +144,13 @@ router.post("/update", upload.single("image"), async (req, res) => {
         `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
         { folder: "products" }
       );
+      console.log("Image baru diupload:", uploadResult.secure_url);
     }
 
-    // Cari dokumen berdasarkan field "toko"
+    // Cari dokumen user berdasarkan "toko"
     const querySnap = await getDb()
       .collection("users")
-      .where("toko", "==", toko)
+      .where("userId", "==", userId)
       .get();
 
     if (querySnap.empty) {
@@ -221,23 +162,25 @@ router.post("/update", upload.single("image"), async (req, res) => {
     for (const doc of querySnap.docs) {
       const existingData = doc.data();
 
-      // Hapus image lama di Cloudinary jika ada dan diganti
-      if (existingData.cloudinaryId && uploadResult) {
+      // Hapus image lama jika ada dan ada image baru
+      if (uploadResult && existingData.cloudinaryId) {
         try {
-          await cloudinary.uploader.destroy(existingData.cloudinaryId);
+          await cloudinary.uploader.destroy(existingData.cloudinaryId, { invalidate: true });
+          console.log("Image lama berhasil dihapus:", existingData.cloudinaryId);
         } catch (err) {
           console.warn("Gagal hapus image lama:", err.message);
         }
       }
 
-      // Update data
+      // Update field opsional
       const updateData = {};
       if (no) updateData.no = no;
-      if (nama) updateData.nama = nama;
+      if (toko) updateData.toko = toko;
       if (alamat) updateData.alamat = alamat;
+      if (userId) updateData.userId = userId
       if (uploadResult) {
         updateData.imgUrl = uploadResult.secure_url;
-        updateData.cloudinaryId = uploadResult.public_id;
+        updateData.cloudinaryId = uploadResult.public_id; // harus sama persis dengan public_id di Cloudinary
       }
 
       await doc.ref.set(updateData, { merge: true });
@@ -249,7 +192,6 @@ router.post("/update", upload.single("image"), async (req, res) => {
       message: "User berhasil diperbarui",
       users: updatedUsers,
     });
-
   } catch (err) {
     console.error("UPDATE ERROR:", err);
     res.status(500).json({ message: err.message });
