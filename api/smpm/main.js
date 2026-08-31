@@ -3,10 +3,11 @@ const router = express.Router();
 const multer = require("multer");
 const {
   uploadImageToR2,
-  listSMPMImages,
-  deleteSMPMImage,
-  getSMPMImageStream,
-} = require("./service/r2Service");
+  listR2Images,
+  deleteR2Image,
+  getR2ImageStream,
+} = require("../../service/r2Service");
+const { publicDevUrl } = require("../../service/r2Config");
 
 // Configuration for Multer (Memory Storage)
 const upload = multer({
@@ -23,11 +24,14 @@ const upload = multer({
   },
 });
 
+const DEFAULT_FOLDER = "smpm";
+
 // GET /smpm -> Info status API SMPM R2
 router.get("/", (req, res) => {
   res.json({
     status: "OK",
     service: "SMPM Cloudflare R2 Image Service",
+    defaultFolder: DEFAULT_FOLDER,
     endpoints: {
       upload: "POST /smpm/upload (multipart/form-data with field 'image' or 'file')",
       listFiles: "GET /smpm/files",
@@ -53,16 +57,19 @@ router.post("/upload", (req, res) => {
         });
       }
 
-      const result = await uploadImageToR2(
-        file.buffer,
-        file.originalname,
-        file.mimetype,
-        req.body.customName
-      );
+      const folderName = req.body.folderName || DEFAULT_FOLDER;
+
+      const result = await uploadImageToR2({
+        fileBuffer: file.buffer,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        folderName,
+        customName: req.body.customName,
+      });
 
       res.status(201).json({
         success: true,
-        message: "Gambar berhasil di-upload ke Cloudflare R2 (folder smpm)",
+        message: `Gambar berhasil di-upload ke Cloudflare R2 (folder '${folderName}')`,
         data: result,
       });
     } catch (error) {
@@ -79,9 +86,11 @@ router.post("/upload", (req, res) => {
 // GET /smpm/files -> Ambil daftar gambar di folder smpm/
 router.get("/files", async (req, res) => {
   try {
-    const files = await listSMPMImages();
+    const folderName = req.query.folderName || DEFAULT_FOLDER;
+    const files = await listR2Images(folderName);
     res.json({
       success: true,
+      folder: folderName,
       total: files.length,
       data: files,
     });
@@ -98,15 +107,15 @@ router.get("/files", async (req, res) => {
 // GET /smpm/file/:filename -> Redirect ke public R2 dev URL atau stream
 router.get("/file/:filename", async (req, res) => {
   const { filename } = req.params;
+  const folderName = req.query.folderName || DEFAULT_FOLDER;
   const redirectMode = req.query.stream !== "true";
 
   if (redirectMode) {
-    const { publicDevUrl } = require("./service/r2Config");
-    return res.redirect(`${publicDevUrl}/smpm/${filename}`);
+    return res.redirect(`${publicDevUrl}/${folderName}/${filename}`);
   }
 
   try {
-    const imageStream = await getSMPMImageStream(filename);
+    const imageStream = await getR2ImageStream(folderName, filename);
     if (imageStream.contentType) {
       res.setHeader("Content-Type", imageStream.contentType);
     }
@@ -128,10 +137,11 @@ router.get("/file/:filename", async (req, res) => {
 router.delete("/file/:filename", async (req, res) => {
   try {
     const { filename } = req.params;
-    const result = await deleteSMPMImage(filename);
+    const folderName = req.query.folderName || DEFAULT_FOLDER;
+    const result = await deleteR2Image(folderName, filename);
     res.json({
       success: true,
-      message: `File ${filename} berhasil dihapus dari R2`,
+      message: `File ${filename} berhasil dihapus dari R2 folder ${folderName}`,
       data: result,
     });
   } catch (error) {
