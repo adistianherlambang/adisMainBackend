@@ -5,7 +5,8 @@ const cors = require("cors")
 require("dotenv").config();
 
 //endpoint
-const adis = require("./adis/main")
+const adis = require("./adis/main");
+const smpm = require("./smpm/main");
 
 const app = express();
 app.use(express.json());
@@ -26,6 +27,8 @@ app.get("/ya", (req, res) => {
 })
 
 app.use("/adis", adis); 
+app.use("/smpm", smpm);
+
 
 // LOCAL DEVELOPMENT
 const isDev = process.env.NODE_ENV !== "production";
