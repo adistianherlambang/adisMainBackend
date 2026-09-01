@@ -127,9 +127,31 @@ async function getR2ImageStream(folderName = "smpm", fileName) {
   };
 }
 
+/**
+ * Ambil stream file dari R2 langsung berdasarkan full Key (misal: "smpm/123_foto.png")
+ * @param {string} key - Key file di R2
+ */
+async function getR2ObjectByKey(key) {
+  checkR2Credentials();
+
+  const command = new GetObjectCommand({
+    Bucket: bucketName,
+    Key: key,
+  });
+
+  const response = await s3Client.send(command);
+  return {
+    body: response.Body,
+    contentType: response.ContentType || "image/png",
+    contentLength: response.ContentLength,
+  };
+}
+
 module.exports = {
   uploadImageToR2,
   listR2Images,
   deleteR2Image,
   getR2ImageStream,
+  getR2ObjectByKey,
 };
+
