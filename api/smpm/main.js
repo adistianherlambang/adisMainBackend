@@ -9,20 +9,14 @@ const {
 } = require("../../service/r2Service");
 const { publicDevUrl } = require("../../service/r2Config");
 
-// Configuration for Multer (Memory Storage)
+// Configuration for Multer (Memory Storage) - Mengizinkan semua tipe file (gambar, PDF, dokumen, dll.)
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // Max 10MB
-  },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
-      cb(null, true);
-    } else {
-      cb(new Error("Hanya file gambar yang diperbolehkan!"), false);
-    }
+    fileSize: 50 * 1024 * 1024, // Max 50MB
   },
 });
+
 
 const DEFAULT_FOLDER = "smpm";
 
@@ -53,7 +47,7 @@ router.post("/upload", (req, res) => {
       if (!file) {
         return res.status(400).json({
           success: false,
-          message: "File gambar tidak ditemukan. Kirim file dengan field name 'file' atau 'image'.",
+          message: "File tidak ditemukan. Kirim file dengan field name 'file' atau 'image'.",
         });
       }
 
@@ -69,17 +63,18 @@ router.post("/upload", (req, res) => {
 
       res.status(201).json({
         success: true,
-        message: `Gambar berhasil di-upload ke Cloudflare R2 (folder '${folderName}')`,
+        message: `File berhasil di-upload ke Cloudflare R2 (folder '${folderName}')`,
         data: result,
       });
     } catch (error) {
       console.error("R2 Upload Error:", error);
       res.status(500).json({
         success: false,
-        message: "Gagal meng-upload gambar ke R2",
+        message: "Gagal meng-upload file ke R2",
         error: error.message,
       });
     }
+
   });
 });
 
